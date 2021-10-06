@@ -211,7 +211,7 @@
           "Não": "11A",
           "default": "11A"
         },
-        "type": "flow",
+        "type": "Flow",
         "lane_id": "2",
         "parameters": {
           "input": {
@@ -284,7 +284,7 @@
           "Não": "14A",
           "default": "14A"
         },
-        "type": "flow",
+        "type": "Flow",
         "lane_id": "2",
         "parameters": {
           "input": {
@@ -319,7 +319,7 @@
           "Não": "14C",
           "default": "13"
         },
-        "type": "flow",
+        "type": "Flow",
         "lane_id": "1",
         "parameters": {
           "input": {
