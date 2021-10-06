@@ -1,0 +1,465 @@
+{
+  "name": "pizza_dayane",
+  "description": "blueprint pizza_dayane, teste trainee",
+  "blueprint_spec": {
+    "requirements": [
+      "core"
+    ],
+    "prepare": [],
+    "nodes": [
+      {
+        "id": "1",
+        "name": "Início",
+        "next": "2",
+        "type": "Start",
+        "lane_id": "1",
+        "parameters": {
+          "input_schema": {},
+          "timeout": 100
+        }
+      },
+      {
+        "id": "2",
+        "name": "Acessa aplicativo",
+        "next": "3",
+        "lane_id": "1",
+        "type": "UserTask",
+        "parameters": {
+          "action": "ACESSA_O_APLICATIVO",
+          "input": {
+            "ícone": "Pizzaria"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "3",
+        "name": "Escolhe a pizza",
+        "next": "4",
+        "lane_id": "1",
+        "type": "UserTask",
+        "parameters": {
+          "action": "ESCOLHE_A_PIZZA",
+          "input": {
+            "quantidade": "quantas pizzas",
+            "tamanho": "pequena, média ou grande",
+            "sabores": "sabores das pizzas",
+            "borda": "com borda ou sem borda",
+            "observações": "observações adicionais"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "4",
+        "name": "Salva escolha da pizza",
+        "next": "5",
+        "lane_id": "1",
+        "type": "SystemTask",
+        "category": "setToBag",
+        "parameters": {
+          "input": {
+            "pedido": {
+              "quantidade": "quantas pizzas",
+              "tamanho": "pequena, média ou grande",
+              "sabores": "sabores das pizzas",
+              "borda": "com borda ou sem borda",
+              "observações": "observações adicionais"
+            }
+          }
+        }
+      },
+      {
+        "id": "5",
+        "name": "Escolhe forma de pagamento",
+        "next": "6",
+        "lane_id": "1",
+        "type": "UserTask",
+        "parameters": {
+          "action": "ESCOLHE_FORMA_DE_PAGAMENTO",
+          "input": {
+            "forma de pagamento": "dinheiro ou cartão"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "6",
+        "name": "Salva forma de pagamento",
+        "next": "7",
+        "lane_id": "1",
+        "type": "SystemTask",
+        "category": "setToBag",
+        "parameters": {
+          "input": {
+            "pagamento": {
+              "forma de pagamento": "dinheiro ou cartão"
+            }
+          }
+        }
+      },
+      {
+        "id": "7",
+        "name": "Confirma dados",
+        "next": "8",
+        "lane_id": "1",
+        "type": "UserTask",
+        "parameters": {
+          "action": "CONFIRMA_DADOS",
+          "input": {
+            "pedido": {
+              "$ref": "bag.pedido"
+            },
+            "pagamento": {
+              "$ref": "bag.pagamento"
+            },
+            "endereço": "endereço de entrega"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "8",
+        "name": "Envia pedido",
+        "next": "9",
+        "lane_id": "1",
+        "type": "SystemTask",
+        "category": "http",
+        "parameters": {
+          "input": {
+            "pedido": {
+              "$ref": "bag.pedido"
+            },
+            "pagamento": {
+              "$ref": "bag.pagamento"
+            },
+            "endereço": "endereço de entrega"
+          },
+          "request": {
+            "url": "https://www.pizzaria.com",
+            "verb": "POST",
+            "headers": {}
+          }
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "9",
+        "name": "Pizzaria recebe pedido",
+        "next": "10",
+        "lane_id": "2",
+        "type": "SystemTask",
+        "category": "http",
+        "parameters": {
+          "input": {
+            "pedido": {
+              "$ref": "bag.pedido"
+            },
+            "pagamento": {
+              "$ref": "bag.pagamento"
+            },
+            "endereço": "endereço de entrega"
+          },
+          "request": {
+            "url": "https://www.pizzaria.com",
+            "verb": "GET",
+            "headers": {}
+          }
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "10",
+        "name": "Aceite do pedido",
+        "next": "11",
+        "lane_id": "2",
+        "type": "UserTask",
+        "parameters": {
+          "action": "ACEITE_DO_PEDIDO_PELA_PIZZARIA",
+          "input": {
+            "pedido": {
+              "$ref": "bag.pedido"
+            },
+            "pagamento": {
+              "$ref": "bag.pagamento"
+            },
+            "endereço": "endereço de entrega"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "11",
+        "name": "Pedido aceito",
+        "next": {
+          "Sim": "12",
+          "Não": "11A",
+          "default": "11A"
+        },
+        "type": "flow",
+        "lane_id": "2",
+        "parameters": {
+          "input": {
+            "sim": "pedido aceito"
+          }
+        }
+      },
+      {
+        "id": "11A",
+        "name": "Comunica ao cliente",
+        "next": "11B",
+        "lane_id": "1",
+        "type": "SystemTask",
+        "category": "http",
+        "parameters": {
+          "input": {
+            "pedido": "pedido negado"
+          },
+          "request": {
+            "url": "https://www.pizzaria.com",
+            "verb": "POST",
+            "headers": {}
+          }
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "11B",
+        "name": "Fim processo",
+        "type": "Finish",
+        "lane_id": "1",
+        "next": null
+      },
+      {
+        "id": "12",
+        "name": "Pizza vai para produção",
+        "next": "13",
+        "lane_id": "2",
+        "type": "UserTask",
+        "parameters": {
+          "action": "PIZZA_VAI_PARA_PRODUÇÃO",
+          "input": {
+            "pedido": {
+              "$ref": "bag.pedido"
+            }
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "13",
+        "name": "Aguarde 20 min",
+        "next": "14",
+        "lane_id": "2",
+        "type": "SystemTask",
+        "category": "timer",
+        "parameters": {
+          "input": {},
+          "timeout": 1200
+        }
+      },
+      {
+        "id": "14",
+        "name": "Pizza pronta?",
+        "next": {
+          "Sim": "15",
+          "Não": "14A",
+          "default": "14A"
+        },
+        "type": "flow",
+        "lane_id": "2",
+        "parameters": {
+          "input": {
+            "ok": "pizza pronta"
+          }
+        }
+      },
+      {
+        "id": "14A",
+        "name": "Comunica ao cliente",
+        "next": "14B",
+        "lane_id": "1",
+        "type": "SystemTask",
+        "category": "http",
+        "parameters": {
+          "input": {
+            "pedido": "pizza em produção"
+          },
+          "request": {
+            "url": "https://www.pizzaria.com",
+            "verb": "POST",
+            "headers": {}
+          }
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "14B",
+        "name": "Esperar",
+        "next": {
+          "Sim": "13",
+          "Não": "14C",
+          "default": "13"
+        },
+        "type": "flow",
+        "lane_id": "1",
+        "parameters": {
+          "input": {
+            "ok": "esperar"
+          }
+        }
+      },
+      {
+        "id": "14C",
+        "name": "Fim processo",
+        "type": "Finish",
+        "lane_id": "1",
+        "next": null
+      },
+      {
+        "id": "15",
+        "name": "Seprar para entrega",
+        "next": "16",
+        "lane_id": "2",
+        "type": "UserTask",
+        "parameters": {
+          "action": "SEPRAR_PIZZA_PARA_ENTREGA",
+          "input": {
+            "pedido": {
+              "$ref": "bag.pedido"
+            },
+            "pagamento": {
+              "$ref": "bag.pagamento"
+            },
+            "endereço": "endereço de entrega"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "16",
+        "name": "Entregar pizza ao entregador",
+        "next": "17",
+        "lane_id": "2",
+        "type": "UserTask",
+        "parameters": {
+          "action": "ENTREGAR_PIZZA_AO_ENTREGADOR",
+          "input": {
+            "pagamento": {
+              "$ref": "bag.pagamento"
+            },
+            "endereço": "endereço de entrega"
+          },
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "17",
+        "name": "Comunica saída para entrega",
+        "next": "18",
+        "lane_id": "1",
+        "type": "SystemTask",
+        "category": "http",
+        "parameters": {
+          "input": {
+            "pedido": "saiu para entrega"
+          },
+          "request": {
+            "url": "https://www.pizzaria.com",
+            "verb": "POST",
+            "headers": {}
+          }
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "18",
+        "name": "Cliente recebe pizza",
+        "next": "19",
+        "lane_id": "1",
+        "type": "UserTask",
+        "parameters": {
+          "action": "CLIENTE_RECEBE_PIZZA",
+          "input": {},
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "19",
+        "name": "Cliente realiza pagamento",
+        "next": "20",
+        "lane_id": "1",
+        "type": "UserTask",
+        "parameters": {
+          "action": "CLIENTE_REALIZA_PAGAMENTO",
+          "input": {},
+          "activity_manager": "commit",
+          "activity_schema": {},
+          "timeout": 60
+        },
+        "result_schema": {}
+      },
+      {
+        "id": "20",
+        "name": "Fim processo",
+        "type": "Finish",
+        "lane_id": "1",
+        "next": null
+      }
+    ],
+    "lanes": [
+      {
+        "id": "1",
+        "name": "cliente",
+        "rule": [
+          "fn",
+          [
+            "&",
+            "args"
+          ],
+          true
+        ]
+      },
+      {
+        "id": "2",
+        "name": "pizzaria",
+        "rule": [
+          "fn",
+          [
+            "&",
+            "args"
+          ],
+          true
+        ]
+      }
+    ],
+    "environment": {}
+  }
+}
